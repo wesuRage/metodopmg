@@ -1,33 +1,42 @@
 "use client";
 
 import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import Swal from "sweetalert2";
 
-const formSchema = z.object({
-  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres").max(64),
-  email: z.string().email("Digite um e-mail válido"),
-  telefone: z
-    .string()
-    .min(14, "Digite um telefone válido com DDD")
-    .max(15)
-    .regex(/\(\d{2}\) \d{4,5}-\d{4}/, "Formato inválido"),
-});
+interface FormValues {
+  nome: string;
+  email: string;
+  telefone: string;
+}
 
 export default function Home() {
-  type FormValues = z.infer<typeof formSchema>;
+  const [formValues, setFormValues] = useState<FormValues>({
+    nome: "",
+    email: "",
+    telefone: "",
+  });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(formSchema) });
+  const [formErrors, setFormErrors] = useState({
+    nome: false,
+    email: false,
+    telefone: false,
+  });
 
-  const phoneMask = (event: any) => {
-    const input = event.target;
-    input.value = phoneMaskRegex(input.value);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = event.target;
+    setFormValues((prevValues) => ({ ...prevValues, [id]: value }));
+
+    // Remove erro ao começar a digitar
+    setFormErrors((prevErrors) => ({ ...prevErrors, [id]: false }));
+  };
+
+  const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const maskedValue = phoneMaskRegex(event.target.value);
+    setFormValues((prevValues) => ({ ...prevValues, telefone: maskedValue }));
+
+    // Remove erro ao começar a digitar
+    setFormErrors((prevErrors) => ({ ...prevErrors, telefone: false }));
   };
 
   const phoneMaskRegex = (value: string) => {
@@ -38,24 +47,46 @@ export default function Home() {
     return value;
   };
 
-  const formSubmit = async (data: FormValues) => {
+  const validateForm = () => {
+    const errors = {
+      nome: formValues.nome.trim() === "",
+      email: formValues.email.trim() === "",
+      telefone: formValues.telefone.trim() === "",
+    };
+
+    setFormErrors(errors);
+
+    return !Object.values(errors).includes(true); // Retorna `true` se não houver erros
+  };
+
+  const formSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!validateForm()) return; // Se houver erros, não envia o formulário
+
     try {
       const response = await fetch("/api/usuario", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formValues),
       });
 
-      if (response.status == 401) {
+      if (response.status === 403) {
+        Swal.fire({
+          title: "Credenciais inválidas",
+          timer: 2000,
+          icon: "error",
+          showConfirmButton: false,
+        });
+        return;
+      }
+
+      if (response.status === 401) {
         Swal.fire({
           title: "E-mail já cadastrado",
           timer: 2000,
           icon: "error",
           showConfirmButton: false,
-        }).then((result) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-            console.log("I was closed by the timer");
-          }
         });
         return;
       }
@@ -63,6 +94,13 @@ export default function Home() {
       window.location.href = "https://chat.whatsapp.com/J6lNEj834U6DM3szBMyAnR";
     } catch (error) {
       console.error("Erro ao enviar:", error);
+      Swal.fire({
+        title: "Erro interno no servidor",
+        timer: 2000,
+        icon: "error",
+        showConfirmButton: false,
+      });
+      return;
     }
   };
 
@@ -91,69 +129,66 @@ export default function Home() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(formSubmit)} className="p-6">
+        <form onSubmit={formSubmit} className="p-6">
+          {/* Campo Nome */}
           <label className="relative block">
             <input
               id="nome"
               type="text"
               autoComplete="off"
-              {...register("nome", { required: true })}
-              className="peer md:text-sm sm:text-lg block w-full rounded-md outline-none border-2 border-stone-400 bg-[var(--background)] text-stone-400 p-2 pt-5 focus:border-green-500 focus:ring-0 placeholder-transparent"
-              placeholder=" "
+              maxLength={64}
+              value={formValues.nome}
+              onChange={handleInputChange}
+              className={`md:text-sm sm:text-lg block w-full rounded-md outline-none border-2 ${
+                formErrors.nome ? "border-red-500" : "border-stone-400"
+              } bg-[var(--background)] text-stone-400 px-4 p-2 focus:border-green-500`}
+              placeholder="Nome completo"
             />
-            <span className="absolute left-2 top-[-10] text-sm bg-[var(--background)] text-stone-400 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-stone-400 peer-focus:top-[-10px] peer-focus:text-sm peer-focus:text-green-500">
-              Nome completo
-            </span>
-            {errors.nome && (
-              <span className="text-sm text-red-400">
-                Preencha com seu nome completo
-              </span>
+            {formErrors.nome && (
+              <span className="text-sm text-red-400">Preencha com seu nome completo</span>
             )}
           </label>
 
+          {/* Campo Email */}
           <label className="relative block my-4">
             <input
               id="email"
               type="email"
+              maxLength={64}
+              value={formValues.email}
+              onChange={handleInputChange}
               autoComplete="off"
-              {...register("email", { required: true })}
-              className="peer md:text-sm sm:text-lg block w-full rounded-md outline-none border-2 border-stone-400 bg-[var(--background)] text-stone-400 p-2 pt-5 focus:border-green-500 focus:ring-0 placeholder-transparent"
-              placeholder=" "
+              className={`md:text-sm sm:text-lg block w-full rounded-md outline-none border-2 ${
+                formErrors.email ? "border-red-500" : "border-stone-400"
+              } bg-[var(--background)] text-stone-400 px-4 p-2 focus:border-green-500`}
+              placeholder="E-mail"
             />
-            <span className="absolute left-2 top-[-10] text-sm bg-[var(--background)] text-stone-400 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-stone-400 peer-focus:top-[-10px] peer-focus:text-sm peer-focus:text-green-500">
-              E-mail
-            </span>
-            {errors.email && (
-              <span className="text-sm text-red-400">
-                Preencha com seu e-mail
-              </span>
+            {formErrors.email && (
+              <span className="text-sm text-red-400">Preencha com seu e-mail</span>
             )}
           </label>
 
+          {/* Campo Telefone */}
           <label className="relative block">
             <input
               id="telefone"
               type="tel"
+              minLength={14}
+              maxLength={15}
               autoComplete="off"
-              {...register("telefone", {
-                required: true,
-                onChange: (e) => {
-                  phoneMask(e);
-                },
-              })}
-              className="peer md:text-sm sm:text-lg block w-full rounded-md outline-none border-2 border-stone-400 bg-[var(--background)] text-stone-400 p-2 pt-5 focus:border-green-500 focus:ring-0 placeholder-transparent"
-              placeholder=" "
+              value={formValues.telefone}
+              onChange={handlePhoneChange}
+              className={`md:text-sm sm:text-lg block w-full rounded-md outline-none border-2 ${
+                formErrors.telefone ? "border-red-500" : "border-stone-400"
+              } bg-[var(--background)] text-stone-400 px-4 p-2 focus:border-green-500`}
+              placeholder="Telefone com DDD"
             />
-            <span className="absolute left-2 top-[-10] text-sm bg-[var(--background)] text-stone-400 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-stone-400 peer-focus:top-[-10px] peer-focus:text-sm peer-focus:text-green-500">
-              Telefone com DDD
-            </span>
-            {errors.telefone && (
-              <span className="text-sm text-red-400">
-                Preencha com seu telefone
-              </span>
+            {formErrors.telefone && (
+              <span className="text-sm text-red-400">Preencha com seu telefone</span>
             )}
           </label>
 
+          {/* Botão de Envio */}
           <input
             value="Enviar & Entrar no Grupo"
             type="submit"

@@ -5,6 +5,12 @@ export async function POST(request: Request) {
   try {
     const { nome, email, telefone } = await request.json();
 
+    if (!nome || !email || !telefone)
+      return NextResponse.json(
+        { message: "E-mail já cadastrado!" },
+        { status: 403 }
+      );
+
     const exists = await prisma.usuario.findUnique({
       where: {
         email
