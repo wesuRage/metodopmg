@@ -1,6 +1,4 @@
-"use client"
-
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsFillPlayFill } from "react-icons/bs";
 
 interface VideoPlayerProps {
@@ -8,9 +6,14 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ src }: VideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -32,31 +35,34 @@ export default function VideoPlayer({ src }: VideoPlayerProps) {
     }
   };
 
+  if (!isClient) {
+    return <div className="w-full h-60 bg-black animate-pulse"></div>;
+  }
+
   return (
     <div className="relative shadow-xl shadow-black mb-4 w-[90%] md:w-[50%] z-0 mx-auto mt-12 group border-4 border-black rounded-2xl overflow-hidden bg-black">
-        <video
-            ref={videoRef}
-            className="w-full shadow-lg rounded-2xl"
-            src={src}
-            onTimeUpdate={handleTimeUpdate}
-        ></video>
+      <video
+        ref={videoRef}
+        className="w-full shadow-lg rounded-2xl"
+        src={src}
+        onTimeUpdate={handleTimeUpdate}
+      ></video>
 
-        {!isPlaying && (
-            <button
-            className="absolute inset-0 flex items-center justify-center text-[#73D673] bg-black/50 rounded-2xl hover:bg-black/70 transition-opacity"
-            onClick={togglePlay}
-            >
-            <BsFillPlayFill size={50} className="opacity-80" />
-            </button>
-        )}
+      {!isPlaying && (
+        <button
+          className="absolute inset-0 flex items-center justify-center text-[#73D673] bg-black/50 rounded-2xl hover:bg-black/70 transition-opacity"
+          onClick={togglePlay}
+        >
+          <BsFillPlayFill size={50} className="opacity-80" />
+        </button>
+      )}
 
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-stone-800 z-0">
-            <div
-            className="h-full bg-[#73D673] transition-all"
-            style={{ width: `${progress}%` }}
-            ></div>
-        </div>
-        </div>
-
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-stone-800 z-0">
+        <div
+          className="h-full bg-[#73D673] transition-all"
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
+    </div>
   );
 }
