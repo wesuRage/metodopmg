@@ -1,3 +1,5 @@
+"use client"
+
 interface ParagraphProps {
     children: React.ReactNode
 }

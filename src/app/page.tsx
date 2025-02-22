@@ -11,6 +11,7 @@ import { BiSupport } from "react-icons/bi";
 import { GoTrophy } from "react-icons/go";
 import { GoCheckCircle } from "react-icons/go";
 import ModulesCarousel from "@/components/Carousel";
+import Footer from "@/components/Footer";
 
 export default function App() {
   return (
@@ -26,7 +27,7 @@ export default function App() {
                 onClick={() => {
                   window.location.href = "https://pay.cakto.com.br/sxqeu5i";
                 }}
-                className="flex cursor-pointer mt-4 font-extrabold hover:shadow-black/50 shadow-xl items-center text-2xl bg-black px-8 py-4 rounded-full text-[#73D673] border-2 border-[#73D673] transition-all hover:bg-[#73D673] hover:text-black scale-75 hover:scale-110"
+                className="flex cursor-pointer my-4 font-extrabold hover:shadow-black/50 shadow-xl items-center text-2xl bg-black px-8 py-4 rounded-full text-[#73D673] border-2 border-[#73D673] transition-all hover:bg-[#73D673] hover:text-black scale-50 hover:scale-100"
               >
                 <HiMiniFire className="me-2" /> COMEÇAR AGORA{" "}
                 <HiMiniFire className="ms-2" />
@@ -35,8 +36,8 @@ export default function App() {
           </div>
         </section>
 
-        <section className="bg-[url(/background.png)] bg-cover bg-no-repeat border-t-[#73D673] border-t-4 p-6">
-          <div className="bg-black/90 rounded-2xl border-[#73D673] border-4 p-6">
+        <section className="bg-[url(/background.png)] bg-cover bg-no-repeat border-t-[#73D673] border-t-4 p-1">
+          <div className="w-full bg-black/90 rounded-2xl border-[#73D673] border-4 p-2">
             <div className="flex justify-center w-full p-6">
               <Title Icon={HiMiniFire}>O que você vai ter acesso:</Title>
             </div>
@@ -84,7 +85,7 @@ export default function App() {
                 onClick={() => {
                   window.location.href = "https://pay.cakto.com.br/sxqeu5i";
                 }}
-                className="flex cursor-pointer mt-4 font-extrabold hover:shadow-black/50 shadow-xl items-center text-2xl bg-black px-8 py-4 rounded-full text-[#73D673] border-2 border-[#73D673] transition-all hover:bg-[#73D673] hover:text-black scale-75 hover:scale-110"
+                className="flex w-full cursor-pointer mt-4 font-extrabold hover:shadow-black/50 shadow-xl items-center text-2xl bg-black px-8 py-4 rounded-full text-[#73D673] border-2 border-[#73D673] transition-all hover:bg-[#73D673] hover:text-black scale-50 hover:scale-100"
               >
                 <HiMiniFire className="me-2" /> COMEÇAR AGORA
                 <HiMiniFire className="ms-2" />
@@ -105,7 +106,7 @@ export default function App() {
               onClick={() => {
                 window.location.href = "https://pay.cakto.com.br/sxqeu5i";
               }}
-              className="flex cursor-pointer mt-4 font-extrabold hover:shadow-black/50 shadow-xl items-center text-2xl bg-black px-8 py-4 rounded-full text-[#73D673] border-2 border-[#73D673] transition-all hover:bg-[#73D673] hover:text-black scale-75 hover:scale-110"
+              className="flex cursor-pointer mt-4 font-extrabold hover:shadow-black/50 shadow-xl items-center text-2xl bg-black px-8 py-4 rounded-full text-[#73D673] border-2 border-[#73D673] transition-all hover:bg-[#73D673] hover:text-black scale-50 hover:scale-100"
             >
               <HiMiniFire className="me-2" /> COMEÇAR AGORA{" "}
               <HiMiniFire className="ms-2" />
@@ -113,6 +114,7 @@ export default function App() {
           </div>
         </section>
       </Main>
+      <Footer />
     </>
   );
 }
