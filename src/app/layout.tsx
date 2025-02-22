@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Método PMG - Domine o Marketing digital",
   description:
-    "Cadastre-se no Método PMG e garanta seu sucesso no Marketing Digital!",
+    "Adquira o Método PMG e garanta seu sucesso no Marketing Digital!",
 };
 
 export default function RootLayout({
